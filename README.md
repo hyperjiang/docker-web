@@ -1,8 +1,8 @@
-# nginx-php
+# docker-web
 
-[![Release](https://img.shields.io/github/release/hyperjiang/nginx-php.svg)](https://github.com/hyperjiang/nginx-php/releases)
-[![Docker Pulls](https://img.shields.io/docker/pulls/hyperjiang/nginx-php.svg)](https://hub.docker.com/r/hyperjiang/nginx-php)
-[![License](https://img.shields.io/github/license/hyperjiang/nginx-php.svg)](https://github.com/hyperjiang/nginx-php)
+[![Release](https://img.shields.io/github/release/hyperjiang/web.svg)](https://github.com/hyperjiang/web/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/hyperjiang/web.svg)](https://hub.docker.com/r/hyperjiang/web)
+[![License](https://img.shields.io/github/license/hyperjiang/web.svg)](https://github.com/hyperjiang/web)
 
 *nginx + php5 + php7 + nodejs, built on ubuntu 18.04 (bionic)*
 

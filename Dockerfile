@@ -13,8 +13,8 @@ RUN apt-get update && \
     apt-get install -y -q build-essential software-properties-common \
     cron curl git gnupg net-tools unzip wget \
     libbz2-dev zlib1g-dev libzip-dev libxml2-dev libxslt-dev libtidy-dev \
-    libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
-    libgmp-dev libgmp3-dev libssl-dev librdkafka-dev libmcrypt-dev
+    libfreetype6-dev libpng-dev libgmp-dev libgmp3-dev libssl-dev \
+    librdkafka-dev libmcrypt-dev
 
 RUN add-apt-repository ppa:ondrej/php
 
