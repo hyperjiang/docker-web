@@ -54,7 +54,6 @@ RUN apt install -y -q \
     php5.6-xsl \
     php5.6-zip
 
-RUN pecl install igbinary-2.0.8;
 RUN pecl install mongodb-1.4.4;
 RUN echo "\n" | pecl install redis-3.1.6;
 RUN pecl install swoole-1.9.23;
@@ -75,6 +74,22 @@ RUN sed -i \
         -e "s/post_max_size = 8M/post_max_size = 100M/g" \
         -e "s/short_open_tag = Off/short_open_tag = On/g" \
         /etc/php/5.6/fpm/php.ini
+
+COPY php5/mongodb.ini /etc/php/5.6/mods-available/mongodb.ini
+COPY php5/protobuf.ini /etc/php/5.6/mods-available/protobuf.ini
+COPY php5/rdkafka.ini /etc/php/5.6/mods-available/rdkafka.ini
+COPY php5/redis.ini /etc/php/5.6/mods-available/redis.ini
+COPY php5/swoole.ini /etc/php/5.6/mods-available/swoole.ini
+RUN ln -s /etc/php/5.6/mods-available/mongodb.ini /etc/php/5.6/fpm/conf.d/20-mongodb.ini
+RUN ln -s /etc/php/5.6/mods-available/mongodb.ini /etc/php/5.6/cli/conf.d/20-mongodb.ini
+RUN ln -s /etc/php/5.6/mods-available/protobuf.ini /etc/php/5.6/fpm/conf.d/20-protobuf.ini
+RUN ln -s /etc/php/5.6/mods-available/protobuf.ini /etc/php/5.6/cli/conf.d/20-protobuf.ini
+RUN ln -s /etc/php/5.6/mods-available/rdkafka.ini /etc/php/5.6/fpm/conf.d/20-rdkafka.ini
+RUN ln -s /etc/php/5.6/mods-available/rdkafka.ini /etc/php/5.6/cli/conf.d/20-rdkafka.ini
+RUN ln -s /etc/php/5.6/mods-available/redis.ini /etc/php/5.6/fpm/conf.d/20-redis.ini
+RUN ln -s /etc/php/5.6/mods-available/redis.ini /etc/php/5.6/cli/conf.d/20-redis.ini
+RUN ln -s /etc/php/5.6/mods-available/swoole.ini /etc/php/5.6/fpm/conf.d/20-swoole.ini
+RUN ln -s /etc/php/5.6/mods-available/swoole.ini /etc/php/5.6/cli/conf.d/20-swoole.ini
 
 # install php7.2
 RUN apt install -y -q \
