@@ -16,5 +16,6 @@ fi
 
 # start services, nginx will run in foreground so that the container won't exit
 service cron start
+service php5.6-fpm start
 service php7.2-fpm start
 service nginx start

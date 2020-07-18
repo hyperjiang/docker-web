@@ -31,20 +31,64 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && apt-get update && apt-get install -y yarn
 
 # install php5.6
+RUN apt install -y -q \
+    php5.6-bcmath \
+    php5.6-bz2 \
+    php5.6-curl \
+    php5.6-dev \
+    php5.6-fpm \
+    php5.6-gd \
+    php5.6-gmp \
+    php5.6-imap \
+    php5.6-intl \
+    php5.6-mbstring \
+    php5.6-mcrypt \
+    php5.6-mysql \
+    php5.6-pgsql \
+    php5.6-soap \
+    php5.6-sqlite3 \
+    php5.6-tidy \
+    php5.6-xdebug \
+    php5.6-xml \
+    php5.6-xmlrpc \
+    php5.6-xsl \
+    php5.6-zip
+
+RUN pecl install igbinary-2.0.8;
+RUN pecl install mongodb;
+RUN echo "\n" | pecl install redis-3.1.6;
+RUN pecl install swoole-1.9.23;
+RUN pecl install rdkafka-3.0.5;
+RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.0.2/protoc-3.0.2-linux-x86_64.zip && \
+    unzip protoc-3.0.2-linux-x86_64.zip -d /protoc && \
+    mv /protoc/bin/protoc /bin/ && \
+    rm -rf /protoc/ && \
+    git clone --single-branch --branch php5 https://github.com/allegro/php-protobuf.git \
+        && cd php-protobuf \
+        && phpize \
+        && ./configure \
+        && make \
+        && make install;
+
+RUN sed -i \
+        -e "s/upload_max_filesize = 2M/upload_max_filesize = 100M/g" \
+        -e "s/post_max_size = 8M/post_max_size = 100M/g" \
+        -e "s/short_open_tag = Off/short_open_tag = On/g" \
+        /etc/php/5.6/fpm/php.ini
 
 # install php7.2
-RUN apt-get install -y -q \
+RUN apt install -y -q \
     php7.2-bcmath \
     php7.2-bz2 \
     php7.2-curl \
     php7.2-dev \
     php7.2-fpm \
     php7.2-gd \
+    php7.2-gmp \
     php7.2-imap \
     php7.2-intl \
     php7.2-mbstring \
     php7.2-mysql \
-    php7.2-pear \
     php7.2-pgsql \
     php7.2-soap \
     php7.2-sqlite3 \
@@ -54,9 +98,6 @@ RUN apt-get install -y -q \
     php7.2-xmlrpc \
     php7.2-xsl \
     php7.2-zip
-
-RUN curl -fsSL https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
 
 RUN pecl channel-update pecl.php.net
 RUN echo "\n" | pecl install apcu-5.1.18
@@ -111,10 +152,13 @@ RUN sed -i \
         -e "s/short_open_tag = Off/short_open_tag = On/g" \
         /etc/php/7.2/fpm/php.ini
 
-# clean up temp files
-RUN rm -rf /var/lib/apt/lists/* /tmp/temp/
+RUN curl -fsSL https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer
 
-RUN mkdir -p /app/public
+# clean up temp files
+RUN rm -rf /var/lib/apt/lists/* /tmp/*
+
+RUN mkdir -p /app
 WORKDIR /app
 
 EXPOSE 443 80
