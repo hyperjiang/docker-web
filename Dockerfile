@@ -54,10 +54,11 @@ RUN apt install -y -q \
     php5.6-xsl \
     php5.6-zip
 
-RUN pecl install mongodb-1.4.4;
-RUN echo "\n" | pecl install redis-3.1.6;
-RUN pecl install swoole-1.9.23;
-RUN pecl install rdkafka-3.0.5;
+RUN pecl channel-update pecl.php.net;
+RUN pecl -d php_suffix=5.6 install mongodb-1.4.4 && pecl uninstall -r mongodb-1.4.4;
+RUN echo "\n" | pecl install redis-3.1.6 && pecl uninstall -r redis-3.1.6;
+RUN pecl -d php_suffix=5.6 install swoole-1.9.23 && pecl uninstall -r swoole-1.9.23;
+RUN pecl -d php_suffix=5.6 install rdkafka-3.0.5 && pecl uninstall -r rdkafka-3.0.5;
 RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.0.2/protoc-3.0.2-linux-x86_64.zip && \
     unzip protoc-3.0.2-linux-x86_64.zip -d /protoc && \
     mv /protoc/bin/protoc /bin/ && \
@@ -114,18 +115,18 @@ RUN apt install -y -q \
     php7.2-xsl \
     php7.2-zip
 
-RUN pecl channel-update pecl.php.net
-RUN echo "\n" | pecl install apcu-5.1.18
-RUN pecl install grpc-1.29.1;
-RUN echo "\n" | pecl install mcrypt-1.0.3;
-RUN pecl install mongodb-1.7.5;
-RUN pecl install protobuf-3.12.3;
-RUN pecl install rdkafka-4.0.3;
-RUN echo "\n\n" | pecl install redis-5.3.1;
-RUN pecl install seaslog-2.1.0;
-RUN echo "yes\nyes\nyes\nyes\n" | pecl install swoole-4.5.2;
-RUN pecl install yac-2.2.1;
-RUN pecl install yaf-3.2.5;
+RUN pecl channel-update pecl.php.net;
+RUN echo "\n" | pecl -d php_suffix=7.2 install apcu-5.1.18
+RUN pecl -d php_suffix=7.2 install grpc-1.29.1;
+RUN echo "\n" | pecl -d php_suffix=7.2 install mcrypt-1.0.3;
+RUN pecl -d php_suffix=7.2 install mongodb-1.7.5;
+RUN pecl -d php_suffix=7.2 install protobuf-3.12.3;
+RUN pecl -d php_suffix=7.2 install rdkafka-4.0.3;
+RUN echo "\n\n" | pecl -d php_suffix=7.2 install redis-5.3.1;
+RUN pecl -d php_suffix=7.2 install seaslog-2.1.0;
+RUN echo "yes\nyes\nyes\nyes\n" | pecl -d php_suffix=7.2 install swoole-4.5.2;
+RUN pecl -d php_suffix=7.2 install yac-2.2.1;
+RUN pecl -d php_suffix=7.2 install yaf-3.2.5;
 
 COPY php7/apcu.ini /etc/php/7.2/mods-available/apcu.ini
 COPY php7/grpc.ini /etc/php/7.2/mods-available/grpc.ini
