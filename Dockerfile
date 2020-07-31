@@ -8,27 +8,22 @@ RUN mkdir -p /tmp/temp
 WORKDIR /tmp/temp
 
 COPY sources.list ./
+RUN wget http://nginx.org/keys/nginx_signing.key \
+    && apt-key add nginx_signing.key \
+    && cat ./sources.list >> /etc/apt/sources.list \
+    && add-apt-repository ppa:ondrej/php \
+    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
 RUN apt-get update && \
     apt-get install -y -q build-essential software-properties-common \
     cron curl git gnupg net-tools unzip wget \
     libbz2-dev zlib1g-dev libzip-dev libxml2-dev libxslt-dev libtidy-dev \
     libfreetype6-dev libpng-dev libgmp-dev libgmp3-dev libssl-dev \
-    librdkafka-dev libmcrypt-dev
-
-RUN add-apt-repository ppa:ondrej/php
-
-RUN wget http://nginx.org/keys/nginx_signing.key \
-    && apt-key add nginx_signing.key \
-    && cat ./sources.list >> /etc/apt/sources.list \
-    && apt-get update && apt-get install -y nginx
+    librdkafka-dev libmcrypt-dev nginx
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash \
-    && apt-get install -y nodejs
-
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
-    && apt-get update && apt-get install -y yarn
+    && apt-get install -y nodejs yarn
 
 # install php5.6
 RUN apt install -y -q \
@@ -54,13 +49,13 @@ RUN apt install -y -q \
     php5.6-xsl \
     php5.6-zip
 
-RUN pecl channel-update pecl.php.net;
-RUN pecl -d php_suffix=5.6 install mongodb-1.4.4 && pecl uninstall -r mongodb-1.4.4;
-RUN echo "\n" | pecl install redis-3.1.6 && pecl uninstall -r redis-3.1.6;
-RUN pecl -d php_suffix=5.6 install swoole-1.9.23 && pecl uninstall -r swoole-1.9.23;
-RUN pecl -d php_suffix=5.6 install rdkafka-3.0.5 && pecl uninstall -r rdkafka-3.0.5;
-RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.0.2/protoc-3.0.2-linux-x86_64.zip && \
-    unzip protoc-3.0.2-linux-x86_64.zip -d /protoc && \
+RUN pecl channel-update pecl.php.net \
+    && pecl -d php_suffix=5.6 install mongodb-1.4.4 && pecl uninstall -r mongodb-1.4.4 \
+    && echo "\n" | pecl install redis-3.1.6 && pecl uninstall -r redis-3.1.6 \
+    && pecl -d php_suffix=5.6 install swoole-1.9.23 && pecl uninstall -r swoole-1.9.23 \
+    && pecl -d php_suffix=5.6 install rdkafka-3.0.5 && pecl uninstall -r rdkafka-3.0.5 \
+    && wget https://github.com/protocolbuffers/protobuf/releases/download/v3.0.2/protoc-3.0.2-linux-x86_64.zip \
+    && unzip protoc-3.0.2-linux-x86_64.zip -d /protoc && \
     mv /protoc/bin/protoc /bin/ && \
     rm -rf /protoc/ && \
     git clone --single-branch --branch php5 https://github.com/allegro/php-protobuf.git \
@@ -81,16 +76,16 @@ COPY php5/protobuf.ini /etc/php/5.6/mods-available/protobuf.ini
 COPY php5/rdkafka.ini /etc/php/5.6/mods-available/rdkafka.ini
 COPY php5/redis.ini /etc/php/5.6/mods-available/redis.ini
 COPY php5/swoole.ini /etc/php/5.6/mods-available/swoole.ini
-RUN ln -s /etc/php/5.6/mods-available/mongodb.ini /etc/php/5.6/fpm/conf.d/20-mongodb.ini
-RUN ln -s /etc/php/5.6/mods-available/mongodb.ini /etc/php/5.6/cli/conf.d/20-mongodb.ini
-RUN ln -s /etc/php/5.6/mods-available/protobuf.ini /etc/php/5.6/fpm/conf.d/20-protobuf.ini
-RUN ln -s /etc/php/5.6/mods-available/protobuf.ini /etc/php/5.6/cli/conf.d/20-protobuf.ini
-RUN ln -s /etc/php/5.6/mods-available/rdkafka.ini /etc/php/5.6/fpm/conf.d/20-rdkafka.ini
-RUN ln -s /etc/php/5.6/mods-available/rdkafka.ini /etc/php/5.6/cli/conf.d/20-rdkafka.ini
-RUN ln -s /etc/php/5.6/mods-available/redis.ini /etc/php/5.6/fpm/conf.d/20-redis.ini
-RUN ln -s /etc/php/5.6/mods-available/redis.ini /etc/php/5.6/cli/conf.d/20-redis.ini
-RUN ln -s /etc/php/5.6/mods-available/swoole.ini /etc/php/5.6/fpm/conf.d/20-swoole.ini
-RUN ln -s /etc/php/5.6/mods-available/swoole.ini /etc/php/5.6/cli/conf.d/20-swoole.ini
+RUN ln -s /etc/php/5.6/mods-available/mongodb.ini /etc/php/5.6/fpm/conf.d/20-mongodb.ini \
+    && ln -s /etc/php/5.6/mods-available/mongodb.ini /etc/php/5.6/cli/conf.d/20-mongodb.ini \
+    && ln -s /etc/php/5.6/mods-available/protobuf.ini /etc/php/5.6/fpm/conf.d/20-protobuf.ini \
+    && ln -s /etc/php/5.6/mods-available/protobuf.ini /etc/php/5.6/cli/conf.d/20-protobuf.ini \
+    && ln -s /etc/php/5.6/mods-available/rdkafka.ini /etc/php/5.6/fpm/conf.d/20-rdkafka.ini \
+    && ln -s /etc/php/5.6/mods-available/rdkafka.ini /etc/php/5.6/cli/conf.d/20-rdkafka.ini \
+    && ln -s /etc/php/5.6/mods-available/redis.ini /etc/php/5.6/fpm/conf.d/20-redis.ini \
+    && ln -s /etc/php/5.6/mods-available/redis.ini /etc/php/5.6/cli/conf.d/20-redis.ini \
+    && ln -s /etc/php/5.6/mods-available/swoole.ini /etc/php/5.6/fpm/conf.d/20-swoole.ini \
+    && ln -s /etc/php/5.6/mods-available/swoole.ini /etc/php/5.6/cli/conf.d/20-swoole.ini
 
 # install php7.2
 RUN apt install -y -q \
@@ -115,18 +110,18 @@ RUN apt install -y -q \
     php7.2-xsl \
     php7.2-zip
 
-RUN pecl channel-update pecl.php.net;
-RUN echo "\n" | pecl -d php_suffix=7.2 install apcu-5.1.18
-RUN pecl -d php_suffix=7.2 install grpc-1.29.1;
-RUN echo "\n" | pecl -d php_suffix=7.2 install mcrypt-1.0.3;
-RUN pecl -d php_suffix=7.2 install mongodb-1.7.5;
-RUN pecl -d php_suffix=7.2 install protobuf-3.12.3;
-RUN pecl -d php_suffix=7.2 install rdkafka-4.0.3;
-RUN echo "\n\n" | pecl -d php_suffix=7.2 install redis-5.3.1;
-RUN pecl -d php_suffix=7.2 install seaslog-2.1.0;
-RUN echo "yes\nyes\nyes\nyes\n" | pecl -d php_suffix=7.2 install swoole-4.5.2;
-RUN pecl -d php_suffix=7.2 install yac-2.2.1;
-RUN pecl -d php_suffix=7.2 install yaf-3.2.5;
+RUN pecl channel-update pecl.php.net \
+    && echo "\n" | pecl -d php_suffix=7.2 install apcu-5.1.18 \
+    && pecl -d php_suffix=7.2 install grpc-1.29.1 \
+    && echo "\n" | pecl -d php_suffix=7.2 install mcrypt-1.0.3 \
+    && pecl -d php_suffix=7.2 install mongodb-1.7.5 \
+    && pecl -d php_suffix=7.2 install protobuf-3.12.3 \
+    && pecl -d php_suffix=7.2 install rdkafka-4.0.3 \
+    && echo "\n\n" | pecl -d php_suffix=7.2 install redis-5.3.1 \
+    && pecl -d php_suffix=7.2 install seaslog-2.1.0 \
+    && echo "yes\nyes\nyes\nyes\n" | pecl -d php_suffix=7.2 install swoole-4.5.2 \
+    && pecl -d php_suffix=7.2 install yac-2.2.1 \
+    && pecl -d php_suffix=7.2 install yaf-3.2.5
 
 COPY php7/apcu.ini /etc/php/7.2/mods-available/apcu.ini
 COPY php7/grpc.ini /etc/php/7.2/mods-available/grpc.ini
@@ -139,28 +134,28 @@ COPY php7/seaslog.ini /etc/php/7.2/mods-available/seaslog.ini
 COPY php7/swoole.ini /etc/php/7.2/mods-available/swoole.ini
 COPY php7/yac.ini /etc/php/7.2/mods-available/yac.ini
 COPY php7/yaf.ini /etc/php/7.2/mods-available/yaf.ini
-RUN ln -s /etc/php/7.2/mods-available/apcu.ini /etc/php/7.2/fpm/conf.d/20-apcu.ini
-RUN ln -s /etc/php/7.2/mods-available/apcu.ini /etc/php/7.2/cli/conf.d/20-apcu.ini
-RUN ln -s /etc/php/7.2/mods-available/grpc.ini /etc/php/7.2/fpm/conf.d/20-grpc.ini
-RUN ln -s /etc/php/7.2/mods-available/grpc.ini /etc/php/7.2/cli/conf.d/20-grpc.ini
-RUN ln -s /etc/php/7.2/mods-available/mcrypt.ini /etc/php/7.2/fpm/conf.d/20-mcrypt.ini
-RUN ln -s /etc/php/7.2/mods-available/mcrypt.ini /etc/php/7.2/cli/conf.d/20-mcrypt.ini
-RUN ln -s /etc/php/7.2/mods-available/mongodb.ini /etc/php/7.2/fpm/conf.d/20-mongodb.ini
-RUN ln -s /etc/php/7.2/mods-available/mongodb.ini /etc/php/7.2/cli/conf.d/20-mongodb.ini
-RUN ln -s /etc/php/7.2/mods-available/protobuf.ini /etc/php/7.2/fpm/conf.d/20-protobuf.ini
-RUN ln -s /etc/php/7.2/mods-available/protobuf.ini /etc/php/7.2/cli/conf.d/20-protobuf.ini
-RUN ln -s /etc/php/7.2/mods-available/rdkafka.ini /etc/php/7.2/fpm/conf.d/20-rdkafka.ini
-RUN ln -s /etc/php/7.2/mods-available/rdkafka.ini /etc/php/7.2/cli/conf.d/20-rdkafka.ini
-RUN ln -s /etc/php/7.2/mods-available/redis.ini /etc/php/7.2/fpm/conf.d/20-redis.ini
-RUN ln -s /etc/php/7.2/mods-available/redis.ini /etc/php/7.2/cli/conf.d/20-redis.ini
-RUN ln -s /etc/php/7.2/mods-available/seaslog.ini /etc/php/7.2/fpm/conf.d/20-seaslog.ini
-RUN ln -s /etc/php/7.2/mods-available/seaslog.ini /etc/php/7.2/cli/conf.d/20-seaslog.ini
-RUN ln -s /etc/php/7.2/mods-available/swoole.ini /etc/php/7.2/fpm/conf.d/20-swoole.ini
-RUN ln -s /etc/php/7.2/mods-available/swoole.ini /etc/php/7.2/cli/conf.d/20-swoole.ini
-RUN ln -s /etc/php/7.2/mods-available/yac.ini /etc/php/7.2/fpm/conf.d/20-yac.ini
-RUN ln -s /etc/php/7.2/mods-available/yac.ini /etc/php/7.2/cli/conf.d/20-yac.ini
-RUN ln -s /etc/php/7.2/mods-available/yaf.ini /etc/php/7.2/fpm/conf.d/20-yaf.ini
-RUN ln -s /etc/php/7.2/mods-available/yaf.ini /etc/php/7.2/cli/conf.d/20-yaf.ini
+RUN ln -s /etc/php/7.2/mods-available/apcu.ini /etc/php/7.2/fpm/conf.d/20-apcu.ini \
+    && ln -s /etc/php/7.2/mods-available/apcu.ini /etc/php/7.2/cli/conf.d/20-apcu.ini \
+    && ln -s /etc/php/7.2/mods-available/grpc.ini /etc/php/7.2/fpm/conf.d/20-grpc.ini \
+    && ln -s /etc/php/7.2/mods-available/grpc.ini /etc/php/7.2/cli/conf.d/20-grpc.ini \
+    && ln -s /etc/php/7.2/mods-available/mcrypt.ini /etc/php/7.2/fpm/conf.d/20-mcrypt.ini \
+    && ln -s /etc/php/7.2/mods-available/mcrypt.ini /etc/php/7.2/cli/conf.d/20-mcrypt.ini \
+    && ln -s /etc/php/7.2/mods-available/mongodb.ini /etc/php/7.2/fpm/conf.d/20-mongodb.ini \
+    && ln -s /etc/php/7.2/mods-available/mongodb.ini /etc/php/7.2/cli/conf.d/20-mongodb.ini \
+    && ln -s /etc/php/7.2/mods-available/protobuf.ini /etc/php/7.2/fpm/conf.d/20-protobuf.ini \
+    && ln -s /etc/php/7.2/mods-available/protobuf.ini /etc/php/7.2/cli/conf.d/20-protobuf.ini \
+    && ln -s /etc/php/7.2/mods-available/rdkafka.ini /etc/php/7.2/fpm/conf.d/20-rdkafka.ini \
+    && ln -s /etc/php/7.2/mods-available/rdkafka.ini /etc/php/7.2/cli/conf.d/20-rdkafka.ini \
+    && ln -s /etc/php/7.2/mods-available/redis.ini /etc/php/7.2/fpm/conf.d/20-redis.ini \
+    && ln -s /etc/php/7.2/mods-available/redis.ini /etc/php/7.2/cli/conf.d/20-redis.ini \
+    && ln -s /etc/php/7.2/mods-available/seaslog.ini /etc/php/7.2/fpm/conf.d/20-seaslog.ini \
+    && ln -s /etc/php/7.2/mods-available/seaslog.ini /etc/php/7.2/cli/conf.d/20-seaslog.ini \
+    && ln -s /etc/php/7.2/mods-available/swoole.ini /etc/php/7.2/fpm/conf.d/20-swoole.ini \
+    && ln -s /etc/php/7.2/mods-available/swoole.ini /etc/php/7.2/cli/conf.d/20-swoole.ini \
+    && ln -s /etc/php/7.2/mods-available/yac.ini /etc/php/7.2/fpm/conf.d/20-yac.ini \
+    && ln -s /etc/php/7.2/mods-available/yac.ini /etc/php/7.2/cli/conf.d/20-yac.ini \
+    && ln -s /etc/php/7.2/mods-available/yaf.ini /etc/php/7.2/fpm/conf.d/20-yaf.ini \
+    && ln -s /etc/php/7.2/mods-available/yaf.ini /etc/php/7.2/cli/conf.d/20-yaf.ini
 
 RUN sed -i \
         -e "s/upload_max_filesize = 2M/upload_max_filesize = 100M/g" \
