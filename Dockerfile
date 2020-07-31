@@ -7,6 +7,13 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 RUN mkdir -p /tmp/temp
 WORKDIR /tmp/temp
 
+RUN apt-get update && \
+    apt-get install -y -q build-essential software-properties-common \
+    cron curl git gnupg net-tools unzip wget \
+    libbz2-dev zlib1g-dev libzip-dev libxml2-dev libxslt-dev libtidy-dev \
+    libfreetype6-dev libpng-dev libgmp-dev libgmp3-dev libssl-dev \
+    librdkafka-dev libmcrypt-dev
+
 COPY sources.list ./
 RUN wget http://nginx.org/keys/nginx_signing.key \
     && apt-key add nginx_signing.key \
@@ -15,15 +22,8 @@ RUN wget http://nginx.org/keys/nginx_signing.key \
     && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
-RUN apt-get update && \
-    apt-get install -y -q build-essential software-properties-common \
-    cron curl git gnupg net-tools unzip wget \
-    libbz2-dev zlib1g-dev libzip-dev libxml2-dev libxslt-dev libtidy-dev \
-    libfreetype6-dev libpng-dev libgmp-dev libgmp3-dev libssl-dev \
-    librdkafka-dev libmcrypt-dev nginx
-
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash \
-    && apt-get install -y nodejs yarn
+    && apt-get update && apt-get install -y nodejs yarn nginx
 
 # install php5.6
 RUN apt install -y -q \
